@@ -5,39 +5,40 @@ from matplotlib.colors import LogNorm
 G = 6.67430e-11  
 M = 1.989e30     
 c = 299792458    
+L = 1e10  
+mu = 1 
 
-def sMetric(G, M, r, c):
-    with np.errstate(divide='ignore', invalid='ignore'):  # Handle division by zero or NaNs
-        r = np.maximum(r, 1e6)
-        metric = (-(G * M) / (r**2)) * (1 - (2 * G * M) / (c**2 * r))**(-1/2)
+def CorrectedNewtonianMetric(G, M, r, c, L, mu):
+    with np.errstate(divide='ignore', invalid='ignore'):
+        r = np.maximum(r, 1e6)  
+        V_newtonian = -(G * M) / r
+        V_centrifugal = (L**2) / (2 * mu * r**2)
+        V_relativistic = -(G * (M + mu) * L**2) / (c**2 * mu * r**3)
+        metric = V_newtonian + V_centrifugal + V_relativistic
     return metric
 
-x, y = np.meshgrid(np.linspace(-1e7, 1e7, 30),  
-                   np.linspace(-1e7, 1e7, 30))
+x, y = np.meshgrid(np.linspace(-1e7, 1e7, 25),  
+                   np.linspace(-1e7, 1e7, 25))
 
-# Convert Cartesian coordinates to polar coordinates
 r = np.sqrt(x**2 + y**2)
 theta = np.arctan2(y, x)
 
-# Avoid the singularity at the origin by excluding values near the center
-r[r < 2e6] = np.nan  # Exclude the region close to the origin 
+r[r < 2e6] = np.nan  
 
-# Directional vectors in polar coordinates (radial only)
-g_r = sMetric(G, M, r, c)
+g_r = CorrectedNewtonianMetric(G, M, r, c, L, mu)
 
-# Convert polar vectors to Cartesian vectors
 gx = g_r * (x / r) 
 gy = g_r * (y / r) 
 
-# remove any nan
 gx[np.isnan(gx)] = 0
 gy[np.isnan(gy)] = 0
 
 magnitude = np.sqrt(gx**2 + gy**2)
 
-plt.quiver(x, y, gx, gy, magnitude, cmap='plasma',linewidth=2, headwidth=5, headlength=7, headaxislength=5)  
+plt.quiver(x, y, gx, gy, magnitude, cmap='plasma', linewidth=2, 
+           headwidth=5, headlength=7, headaxislength=5)  
 
-plt.title('Relativistic Gravitational Field (Excluding Center)')
+plt.title('Relativistic Gravitational Field (Post-Newtonian Correction)')
 plt.colorbar(label='Vector Magnitude')
 
 plt.grid()
