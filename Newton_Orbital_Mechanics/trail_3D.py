@@ -80,8 +80,9 @@ class OrbitSimulation:
         for step in range(1, num_steps):
             pos_earth, vel_earth, pos_moon, vel_moon = self.rk4_step()
 
-            self.body1.update_position(pos_earth, step)
-            self.body1.update_velocity(vel_earth)
+            #! FIXED EARTH
+            #* self.body1.update_position(pos_earth, step)
+            #* self.body1.update_velocity(vel_earth)
             self.body2.update_position(pos_moon, step)
             self.body2.update_velocity(vel_moon)
 
