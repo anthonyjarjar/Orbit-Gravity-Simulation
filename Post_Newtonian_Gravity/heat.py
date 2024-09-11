@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
 G = 6.67430e-11  
-M = 1.989e30     
+M = 1.989e4     
 c = 299792458
 G = 6.67430e-11  
 M = 1.989e30     
